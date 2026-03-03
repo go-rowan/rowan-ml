@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-rowan/rowan"
 	"github.com/go-rowan/rowan-ml/internal/mathx"
-	"github.com/go-rowan/rowan-ml/preprocess"
 	"github.com/go-rowan/rowan/table"
 )
 
@@ -17,34 +16,6 @@ type LinearRegression struct {
 	features []string
 	fitted   bool
 	options  *linearRegressionOptions
-}
-
-type linearRegressionOptions struct {
-	learnRate float64
-	epochs    int
-	scaler    preprocess.Transformer
-}
-
-// LinearRegressionOption defines a function type for configuring LinearRegression parameters.
-type LinearRegressionOption func(*linearRegressionOptions)
-
-// WithLearnRate sets the learning rate for the gradient descent optimizer.
-func WithLearnRate(rate float64) LinearRegressionOption {
-	return func(o *linearRegressionOptions) { o.learnRate = rate }
-}
-
-// WithEpochs sets the number of iterations for the training process.
-func WithEpochs(epochs int) LinearRegressionOption {
-	return func(o *linearRegressionOptions) {
-		o.epochs = epochs
-	}
-}
-
-// WithScaler sets a transformer to scale features before fitting and prediction.
-func WithScaler(scaler preprocess.Transformer) LinearRegressionOption {
-	return func(o *linearRegressionOptions) {
-		o.scaler = scaler
-	}
 }
 
 // NewRegression creates and returns a new LinearRegression model with default or custom options.
@@ -71,7 +42,9 @@ func (lr *LinearRegression) Fit(x, y *rowan.Table) error {
 		return errors.New("x and y must not be nil")
 	}
 
-	lr.features = x.Columns()
+	if x.Len() != y.Len() {
+		return fmt.Errorf("features and target tables must have the same number of rows (%d vs %d)", x.Len(), y.Len())
+	}
 
 	if lr.options.scaler != nil {
 		err := lr.options.scaler.Fit(x, x.Columns()...)
@@ -109,6 +82,7 @@ func (lr *LinearRegression) Fit(x, y *rowan.Table) error {
 		lr.weights, lr.bias = mathx.SGDStep(lr.weights, lr.bias, dW, dB, lr.options.learnRate)
 	}
 
+	lr.features = x.Columns()
 	lr.fitted = true
 
 	return nil
