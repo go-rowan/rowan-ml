@@ -8,4 +8,6 @@ type Distance interface {
 
 var (
 	Euclidean = EuclideanDistance{}
+	Manhattan = ManhattanDistance{}
+	Chebyshev = ChebyshevDistance{}
 )
