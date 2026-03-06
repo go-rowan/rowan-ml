@@ -69,7 +69,7 @@ func (r Report) ShowAll() error {
 		data[key] = []any{value}
 	}
 
-	tbl, err := table.New(data, NameRegressionMetrics())
+	tbl, err := table.New(data, r.Metrics())
 	if err != nil {
 		return fmt.Errorf("show all: failed creating temporary table: %w", err)
 	}
