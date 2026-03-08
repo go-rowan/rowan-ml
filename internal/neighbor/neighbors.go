@@ -1,4 +1,4 @@
-package mathx
+package neighbor
 
 import (
 	"container/heap"

@@ -1,4 +1,4 @@
-package mathx
+package neighbor
 
 type MaxHeapNeighbor []NeighborItem
 

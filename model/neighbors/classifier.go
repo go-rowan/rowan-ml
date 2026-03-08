@@ -2,10 +2,9 @@ package neighbors
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/go-rowan/rowan"
-	"github.com/go-rowan/rowan-ml/internal/mathx"
+	"github.com/go-rowan/rowan-ml/internal/neighbor"
 	"github.com/go-rowan/rowan/table"
 )
 
@@ -40,32 +39,7 @@ func NewKNNClassifier(k int, options ...KNNOption) *KNNClassifier {
 //
 // It performs data validation and automatically applies feature scaling if a scaler was provided during initialization. As a lazy learner, Fit primarily handles data transformation and storage for later use in Predict.
 func (kc *KNNClassifier) Fit(x, y *rowan.Table) error {
-	if x == nil || y == nil {
-		return errors.New("x and y must not be nil")
-	}
-
-	if x.Len() != y.Len() {
-		return fmt.Errorf("features and target tables must have the same number of rows (%d vs %d)", x.Len(), y.Len())
-	}
-
-	if kc.options.scaler != nil {
-		err := kc.options.scaler.Fit(x, x.Columns()...)
-		if err != nil {
-			return fmt.Errorf("scaling error during fit: %w", err)
-		}
-
-		x, err = kc.options.scaler.Transform(x)
-		if err != nil {
-			return fmt.Errorf("scaling error during transform: %w", err)
-		}
-	}
-
-	X, err := x.NumericMatrix()
-	if err != nil {
-		return err
-	}
-
-	Y, err := y.NumericSlice(0)
+	X, Y, err := fit(x, y, kc.options.scaler)
 	if err != nil {
 		return err
 	}
@@ -92,9 +66,9 @@ func (kc *KNNClassifier) Predict(x *rowan.Table) (*rowan.Table, error) {
 		return nil, errors.New("model is not fitted yet")
 	}
 
-	var err error
-
 	if kc.options.scaler != nil {
+		var err error
+
 		x, err = kc.options.scaler.Transform(x)
 		if err != nil {
 			return nil, err
@@ -109,7 +83,7 @@ func (kc *KNNClassifier) Predict(x *rowan.Table) (*rowan.Table, error) {
 	yPred := make([]any, len(X))
 
 	for i, row := range X {
-		indices, err := mathx.GetKNearest(kc.k, row, kc.trainX, kc.options.distance)
+		indices, err := neighbor.GetKNearest(kc.k, row, kc.trainX, kc.options.distance)
 		if err != nil {
 			return nil, err
 		}

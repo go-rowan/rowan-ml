@@ -1,4 +1,4 @@
-package mathx
+package neighbor
 
 type NeighborItem struct {
 	Index    int
