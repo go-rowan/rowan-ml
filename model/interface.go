@@ -2,10 +2,15 @@ package model
 
 import "github.com/go-rowan/rowan"
 
-// Learner defines the interface for models that can be trained.
-// Any type implementing this interface must provide a Fit method to learn from the provided features (x) and targets (y).
-type Learner interface {
+// SupervisedLearner defines the interface for models that require labeled training data.
+// Implementations are expected to map input features (x) to corresponding targets (y) via the Fit method.
+type SupervisedLearner interface {
 	Fit(x, y *rowan.Table) error
+}
+
+// UnsupervisedLearner defines the interface for models that learn patterns directly from input data without explicit target labels.
+type UnsupervisedLearner interface {
+	Fit(x *rowan.Table) error
 }
 
 // Predictor defines the interface for models that can make predictions.
