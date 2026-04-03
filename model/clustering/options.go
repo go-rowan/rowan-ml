@@ -1,4 +1,4 @@
-package cluster
+package clustering
 
 import (
 	"github.com/go-rowan/rowan-ml/eval"

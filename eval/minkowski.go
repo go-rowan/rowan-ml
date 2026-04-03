@@ -29,13 +29,13 @@ func (md *MinkowskiDistance) Name() string {
 	return fmt.Sprintf("minkowski(p=%.2f)", md.p)
 }
 
-// Compute calculates the Minkowski distance between two vectors.
-func (md *MinkowskiDistance) Compute(a, b []float64) (float64, error) {
+// Measure calculates the Minkowski distance between two vectors.
+func (md *MinkowskiDistance) Measure(a, b []float64) (float64, error) {
 	switch md.p {
 	case 2:
-		return Euclidean.Compute(a, b)
+		return Euclidean.Measure(a, b)
 	case 1:
-		return Manhattan.Compute(a, b)
+		return Manhattan.Measure(a, b)
 	}
 
 	if len(a) != len(b) {

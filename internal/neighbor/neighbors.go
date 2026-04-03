@@ -2,16 +2,14 @@ package neighbor
 
 import (
 	"container/heap"
-
-	"github.com/go-rowan/rowan-ml/eval"
 )
 
-func GetKNearest(k int, target []float64, trainX [][]float64, distFn eval.Distance) ([]int, error) {
+func GetKNearest(k int, target []float64, trainX [][]float64, measure func(a, b []float64) (float64, error)) ([]int, error) {
 	h := &MaxHeapNeighbor{}
 	heap.Init(h)
 
 	for i, row := range trainX {
-		d, err := distFn.Compute(target, row)
+		d, err := measure(target, row)
 		if err != nil {
 			return nil, err
 		}

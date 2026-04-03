@@ -1,4 +1,4 @@
-package cluster
+package clustering
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/go-rowan/rowan"
+	"github.com/go-rowan/rowan-ml/internal/cluster"
 	"github.com/go-rowan/rowan/table"
 )
 
@@ -18,6 +19,7 @@ type KMeans struct {
 	centroids [][]float64
 	features  []string
 	fitted    bool
+	inertia   float64
 	options   *kMeansOptions
 }
 
@@ -37,6 +39,16 @@ func NewKMeans(k int, options ...KMeansOption) *KMeans {
 	}
 }
 
+// Fit executes the K-Means clustering algorithm on the provided table.
+//
+// The process follows these sequential phases:
+//  1. Preprocessing: If a scaler is configured, it fits to and transforms the input data.
+//  2. Initialization: Initial centroids are selected from the observation space.
+//  3. Iterative Optimization:
+//     - Assignment: Each observation is mapped to the nearest centroid.
+//     - Update: Centroids are recalculated based on the mean of assigned points.
+//     - Convergence Check: The process terminates if the movement is within 'tolerance' or 'maxIter' is reached.
+//  4. Metric Calculation: Computes the final inertia (WCSS) and marks the model as fitted.
 func (k *KMeans) Fit(x *rowan.Table) error {
 	if x == nil {
 		return errors.New("x must not be nil")
@@ -61,9 +73,8 @@ func (k *KMeans) Fit(x *rowan.Table) error {
 
 	k.centroids = k.initRandom(X)
 
+	clusters := make([][]int, k.k)
 	for i := 0; i < k.maxIter; i++ {
-		clusters := make([][]int, k.k)
-
 		for idx, row := range X {
 			c, err := k.findClosestCentroid(row)
 			if err != nil {
@@ -86,11 +97,21 @@ func (k *KMeans) Fit(x *rowan.Table) error {
 		k.centroids = newCentroids
 	}
 
+	inertia, err := cluster.CalculateWCSS(k.centroids, X, clusters, k.options.distance.Measure)
+	if err != nil {
+		return err
+	}
+
+	k.inertia = inertia
 	k.fitted = true
 
 	return nil
 }
 
+// Predict performs inference on the provided input table, assigning each observation to the nearest cluster centroid.
+//
+// If a scaler was provided during initialization, it is automatically applied to the input features to maintain consistency with the training distribution.
+// It returns a single-column table containing the assigned cluster indices.
 func (k *KMeans) Predict(x *rowan.Table) (*rowan.Table, error) {
 	if x == nil {
 		return nil, errors.New("x must not be nil")
@@ -162,4 +183,11 @@ func (k *KMeans) SetSeed(s int64) {
 	k.options.seed = s
 
 	k.randGen = rand.New(rand.NewSource(s))
+}
+
+// Inertia returns the Within-Cluster Sum of Squares (WCSS), representing the sum of squared distances of samples to their closest cluster center.
+//
+// This metric serves as an internal measure of clustering coherence; lower values typically indicate a more dense and well-separated clustering.
+func (k *KMeans) Inertia() float64 {
+	return k.inertia
 }

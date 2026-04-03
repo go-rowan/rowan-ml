@@ -83,7 +83,7 @@ func (kc *KNNClassifier) Predict(x *rowan.Table) (*rowan.Table, error) {
 	yPred := make([]any, len(X))
 
 	for i, row := range X {
-		indices, err := neighbor.GetKNearest(kc.k, row, kc.trainX, kc.options.distance)
+		indices, err := neighbor.GetKNearest(kc.k, row, kc.trainX, kc.options.distance.Measure)
 		if err != nil {
 			return nil, err
 		}

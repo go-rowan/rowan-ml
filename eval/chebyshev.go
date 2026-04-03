@@ -15,10 +15,10 @@ func (ChebyshevDistance) Name() string {
 	return "chebyshev"
 }
 
-// Compute calculates the Chebyshev distance between two float64 slices.
+// Measure calculates the Chebyshev distance between two float64 slices.
 //
 // It returns an error if the slices have different lengths to prevent undefined behavior.
-func (ChebyshevDistance) Compute(a, b []float64) (float64, error) {
+func (ChebyshevDistance) Measure(a, b []float64) (float64, error) {
 	if len(a) != len(b) {
 		return 0, errors.New("length mismatch")
 	}

@@ -85,7 +85,7 @@ func (kr *KNNRegressor) Predict(x *rowan.Table) (*rowan.Table, error) {
 	yPred := make([]any, len(X))
 
 	for i, row := range X {
-		indices, err := neighbor.GetKNearest(kr.k, row, kr.trainX, kr.options.distance)
+		indices, err := neighbor.GetKNearest(kr.k, row, kr.trainX, kr.options.distance.Measure)
 		if err != nil {
 			return nil, err
 		}

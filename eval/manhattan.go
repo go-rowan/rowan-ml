@@ -15,10 +15,10 @@ func (ManhattanDistance) Name() string {
 	return "manhattan"
 }
 
-// Compute calculates the Manhattan distance between two float64 slices.
+// Measure calculates the Manhattan distance between two float64 slices.
 //
 // It returns an error if the slices have different lengths to prevent undefined behavior.
-func (ManhattanDistance) Compute(a, b []float64) (float64, error) {
+func (ManhattanDistance) Measure(a, b []float64) (float64, error) {
 	if len(a) != len(b) {
 		return 0, errors.New("length mismatch")
 	}
