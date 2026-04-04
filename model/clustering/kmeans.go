@@ -148,6 +148,28 @@ func (k *KMeans) Predict(x *rowan.Table) (*rowan.Table, error) {
 	return table.New(map[string][]any{"cluster": clusters})
 }
 
+// K returns the number of clusters currently configured.
+func (k *KMeans) K() int {
+	return k.k
+}
+
+// SetK updates the number of clusters (k) for the model.
+//
+// This operation is only permitted before the model is fitted. If called on a model where fitted is true, it returns an error.
+func (k *KMeans) SetK(newK int) error {
+	if k.fitted {
+		return errors.New("cannot change k: model is already fitted")
+	}
+
+	if newK < 1 {
+		return errors.New("k must be at least 1")
+	}
+
+	k.k = newK
+
+	return nil
+}
+
 // MaxIter returns the current limit on the number of iterations.
 func (k *KMeans) MaxIter() int {
 	return k.maxIter
@@ -190,4 +212,48 @@ func (k *KMeans) SetSeed(s int64) {
 // This metric serves as an internal measure of clustering coherence; lower values typically indicate a more dense and well-separated clustering.
 func (k *KMeans) Inertia() float64 {
 	return k.inertia
+}
+
+// IsFitted returns true if the model has been successfully trained.
+func (k *KMeans) IsFitted() bool {
+	return k.fitted
+}
+
+// Features returns the names of the features the model was trained on.
+func (k *KMeans) Features() []string {
+	features := make([]string, len(k.features))
+	copy(features, k.features)
+
+	return features
+}
+
+// Centroids returns a deep copy of all computed cluster centers.
+//
+// It returns nil if the model has not been fitted.
+func (k *KMeans) Centroids() [][]float64 {
+	if !k.fitted {
+		return nil
+	}
+
+	centroids := make([][]float64, len(k.features))
+	for i := range k.centroids {
+		centroids[i] = make([]float64, len(k.centroids[i]))
+		copy(centroids[i], k.centroids[i])
+	}
+
+	return centroids
+}
+
+// Centroid returns a deep copy of a specific cluster center by its index.
+//
+// It returns nil if the model is not fitted or if the index is out of bounds.
+func (k *KMeans) Centroid(idx int) []float64 {
+	if !k.fitted || idx < 0 || idx >= len(k.centroids) {
+		return nil
+	}
+
+	centroid := make([]float64, len(k.centroids[idx]))
+	copy(centroid, k.centroids[idx])
+
+	return centroid
 }
