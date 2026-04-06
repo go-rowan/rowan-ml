@@ -32,6 +32,7 @@ func NewKNNClassifier(k int, options ...KNNOption) *KNNClassifier {
 	return &KNNClassifier{
 		k:       k,
 		options: opts,
+		fitted:  false,
 	}
 }
 

@@ -36,6 +36,7 @@ func NewKMeans(k int, options ...KMeansOption) *KMeans {
 		tolerance: opts.tolerance,
 		randGen:   rand.New(rand.NewSource(opts.seed)),
 		options:   opts,
+		fitted:    false,
 	}
 }
 
