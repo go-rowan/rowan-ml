@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-rowan/rowan"
 	"github.com/go-rowan/rowan-ml/internal/cluster"
+	"github.com/go-rowan/rowan-ml/internal/mathx"
 	"github.com/go-rowan/rowan/table"
 )
 
@@ -36,6 +37,7 @@ func NewKMeans(k int, options ...KMeansOption) *KMeans {
 		tolerance: opts.tolerance,
 		randGen:   rand.New(rand.NewSource(opts.seed)),
 		options:   opts,
+		features:  []string{},
 		fitted:    false,
 	}
 }
@@ -236,13 +238,7 @@ func (k *KMeans) Centroids() [][]float64 {
 		return nil
 	}
 
-	centroids := make([][]float64, len(k.features))
-	for i := range k.centroids {
-		centroids[i] = make([]float64, len(k.centroids[i]))
-		copy(centroids[i], k.centroids[i])
-	}
-
-	return centroids
+	return mathx.CopyMatrix(k.centroids)
 }
 
 // Centroid returns a deep copy of a specific cluster center by its index.

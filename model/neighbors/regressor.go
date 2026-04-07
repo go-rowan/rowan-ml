@@ -30,9 +30,10 @@ func NewKNNRegressor(k int, options ...KNNOption) *KNNRegressor {
 	}
 
 	return &KNNRegressor{
-		k:       k,
-		options: opts,
-		fitted:  false,
+		k:        k,
+		options:  opts,
+		features: []string{},
+		fitted:   false,
 	}
 }
 

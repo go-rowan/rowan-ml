@@ -31,8 +31,9 @@ func NewRegression(options ...LinearRegressionOption) *LinearRegression {
 	}
 
 	return &LinearRegression{
-		options: opts,
-		fitted:  false,
+		options:  opts,
+		features: []string{},
+		fitted:   false,
 	}
 }
 
