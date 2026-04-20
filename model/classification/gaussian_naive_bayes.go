@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-rowan/rowan"
 	"github.com/go-rowan/rowan-ml/internal/mathx"
+	"github.com/go-rowan/rowan-ml/internal/slice"
 	"github.com/go-rowan/rowan/table"
 )
 
@@ -28,7 +29,8 @@ type GaussianNaiveBayes struct {
 // The model must be trained using the Fit method before it can be used to perform predictions.
 func NewGaussianNaiveBayes() *GaussianNaiveBayes {
 	return &GaussianNaiveBayes{
-		fitted: false,
+		features: []string{},
+		fitted:   false,
 	}
 }
 
@@ -62,10 +64,7 @@ func (gnb *GaussianNaiveBayes) Fit(x, y *rowan.Table) error {
 		return err
 	}
 
-	classMap := make(map[int][]int)
-	for i, val := range yData {
-		classMap[val] = append(classMap[val], i)
-	}
+	classMap := slice.MapIntSliceIndices(yData)
 
 	classCount := len(classMap)
 

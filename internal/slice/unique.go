@@ -14,3 +14,12 @@ func UniqueInts(integers []int) []int {
 
 	return unique
 }
+
+func MapIntSliceIndices(data []int) map[int][]int {
+	classMap := make(map[int][]int)
+	for i, val := range data {
+		classMap[val] = append(classMap[val], i)
+	}
+
+	return classMap
+}
